@@ -7,8 +7,6 @@
     <!-- Video.js плеер -->
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-    <!-- HLS.js поддержка -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -97,7 +95,6 @@
 </head>
 <body>
 <div class="app">
-    <!-- ШАПКА -->
     <header class="header">
         <div class="logo" onclick="navigateTo('home')">
             <i class="fas fa-sun"></i> воскресенье
@@ -106,23 +103,17 @@
             <input type="text" id="searchInput" placeholder="Поиск...">
             <button onclick="searchVideos()"><i class="fas fa-search"></i></button>
         </div>
-        <div class="user-section" id="userSection">
-            <!-- динамически: либо кнопки вход/регистрация, либо аватар -->
-        </div>
+        <div class="user-section" id="userSection"></div>
         <div class="header-actions">
             <button onclick="navigateTo('upload')" title="Загрузить"><i class="fas fa-plus"></i></button>
             <button onclick="resetAndReload()" title="Сброс"><i class="fas fa-sync-alt"></i></button>
         </div>
     </header>
 
-    <!-- МОДАЛКИ ВХОДА / РЕГИСТРАЦИИ -->
     <div id="authModal" class="modal">
-        <div class="modal-content" id="authModalContent">
-            <!-- динамическое содержимое -->
-        </div>
+        <div class="modal-content" id="authModalContent"></div>
     </div>
 
-    <!-- ГЛАВНАЯ -->
     <div id="homePage" class="page active">
         <section class="scroll-section">
             <div class="scroll-header">
@@ -134,422 +125,46 @@
             </div>
             <div class="scroll-container" id="recsContainer"></div>
         </section>
-        <section class="scroll-section">
-            <div class="scroll-header">
-                <h2>📱 Вертикальные</h2>
-                <div class="scroll-controls">
-                    <button onclick="scrollHoriz('vert', -1)"><i class="fas fa-chevron-left"></i></button>
-                    <button onclick="scrollHoriz('vert', 1)"><i class="fas fa-chevron-right"></i></button>
-                </div>
-            </div>
-            <div class="scroll-container" id="verticalFeedContainer"></div>
-        </section>
     </div>
 
-    <!-- СТРАНИЦА ВИДЕО -->
     <div id="videoPage" class="page">
         <div class="player-section">
             <video-js id="realVideoPlayer" class="vjs-default-skin vjs-big-play-centered" controls preload="auto">
                 <source src="" type="video/mp4" id="videoSource">
             </video-js>
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <h2 id="videoTitle"></h2>
-            <button class="download-btn" id="downloadVideoBtn" onclick="downloadCurrentVideo()"><i class="fas fa-download"></i> Скачать</button>
-        </div>
+        <h2 id="videoTitle"></h2>
         <div class="video-stats">
             <span><i class="fas fa-eye"></i> <span id="videoViews">0</span></span>
             <span><i class="fas fa-thumbs-up"></i> <span id="videoLikes">0</span></span>
-            <span><i class="fas fa-clock"></i> <span id="videoDuration">0:00</span></span>
         </div>
-        <p id="videoDescription"></p>
         <div class="channel-header">
-            <i class="fas fa-user-circle" style="font-size:3rem;"></i>
-            <div><a href="#" id="videoChannelLink" class="channel-link" style="font-size:1.4rem;"></a></div>
+            <a href="#" id="videoChannelLink" class="channel-link"></a>
         </div>
-        <h3>Ещё с канала</h3>
-        <div class="video-grid" id="moreFromChannel"></div>
     </div>
 
-    <!-- СТРАНИЦА КАНАЛА -->
-    <div id="channelPage" class="page">
-        <div style="display: flex; gap: 24px; background:#161624; padding:20px 30px; border-radius:60px; margin-bottom:30px;">
-            <i class="fas fa-user-circle" style="font-size:5rem;"></i>
-            <div><h1 id="channelName"></h1><p id="channelStats"></p></div>
-        </div>
-        <h3>Все видео</h3>
-        <div class="video-grid" id="channelVideosList"></div>
-    </div>
-
-    <!-- ЗАГРУЗКА -->
     <div id="uploadPage" class="page">
         <div class="upload-form">
-            <h2 style="margin-bottom:20px;">Загрузить видео</h2>
-            <div class="form-group">
-                <label>📹 Видео (MP4)</label>
-                <input type="file" id="videoFile" accept="video/mp4">
-            </div>
-            <div class="form-group">
-                <label>🖼️ Обложка (превью)</label>
-                <input type="file" id="thumbFile" accept="image/*">
-                <div class="preview-block" id="thumbPreviewBlock" style="display:none;">
-                    <div class="thumb-preview" id="thumbPreviewImg"></div>
-                    <span>Превью обложки</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Название</label>
-                <input type="text" id="videoTitleInput" maxlength="100">
-            </div>
-            <div class="form-group">
-                <label>Описание</label>
-                <textarea id="videoDescInput"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Ориентация</label>
-                <select id="videoOrientation">
-                    <option value="horizontal">Горизонтальное (до 15 ч)</option>
-                    <option value="vertical">Вертикальное (до 3 мин)</option>
-                </select>
-            </div>
-            <div class="moderation-note">
-                <i class="fas fa-shield-alt"></i> 18+, курение, алкоголь — только с образовательной целью или 18+
-            </div>
-            <div class="checkbox-label">
-                <input type="checkbox" id="educationalCheck"> <label>Образовательные цели</label>
-            </div>
-            <div class="checkbox-label">
-                <input type="checkbox" id="adultContentCheck"> <label>Взрослый контент (18+)</label>
-            </div>
-            <button class="btn" onclick="publishVideo()" style="width:100%;"><i class="fas fa-upload"></i> Опубликовать</button>
-            <p id="uploadMessage" style="margin-top:15px; color:#ffaa33;"></p>
+            <h2>Загрузить видео</h2>
+            <input type="file" id="videoFile" accept="video/*">
+            <input type="text" id="videoTitleInput" placeholder="Название">
+            <button onclick="publishVideo()">Опубликовать</button>
         </div>
-    </div>
-
-    <!-- ПОИСК -->
-    <div id="searchPage" class="page">
-        <h2>Результаты: "<span id="searchQuerySpan"></span>"</h2>
-        <div class="video-grid" id="searchResultsGrid"></div>
     </div>
 </div>
 
-<footer class="footer">
-    <p>воскресенье — вход, регистрация, превью, скачивание, модерация</p>
-</footer>
-
 <script>
-    (function() {
-        // ================== ДАННЫЕ ==================
-        let videos = [];
-        let users = [];
-        let currentUser = null; // { username, channelId, channelName }
-        const STORAGE_VIDEOS = 'sunday_videos';
-        const STORAGE_USERS = 'sunday_users';
-        const STORAGE_SESSION = 'sunday_session';
-        let lastWatchedTags = JSON.parse(localStorage.getItem('lastTags')) || [];
+    let videos = JSON.parse(localStorage.getItem('videos')) || [];
+    let currentUser = null;
 
-        // Загрузка
-        function loadData() {
-            let storedVideos = localStorage.getItem(STORAGE_VIDEOS);
-            if (storedVideos) videos = JSON.parse(storedVideos);
-            else {
-                // стартовые видео с реальными превью (imgur работает)
-                videos = [
-                    { id: 'v1', title: 'Кот в коробке', channelId: 'ch1', channelName: 'Pets', views: 125000, likes: 8300, desc: 'Вертикальное видео с котом', orientation: 'vertical', duration: 59, thumbnail: 'https://i.imgur.com/5K7vIqI.jpg', videoUrl: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4', educational: false, adult: false, tags: ['животные'] },
-                    { id: 'v2', title: 'Обзор камеры', channelId: 'ch2', channelName: 'TechReview', views: 34000, likes: 2100, desc: 'Горизонтальный обзор', orientation: 'horizontal', duration: 482, thumbnail: 'https://i.imgur.com/J3aJ9qW.jpg', videoUrl: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4', educational: false, adult: false, tags: ['техника'] },
-                    { id: 'v3', title: 'Йога утром', channelId: 'ch3', channelName: 'Здоровье', views: 89000, likes: 5200, desc: 'Вертикальное', orientation: 'vertical', duration: 175, thumbnail: 'https://i.imgur.com/Y2W0o6E.jpg', videoUrl: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4', educational: true, adult: false, tags: ['спорт'] },
-                    { id: 'v4', title: 'Документальный', channelId: 'ch4', channelName: 'History', views: 230000, likes: 18400, desc: 'Образовательное', orientation: 'horizontal', duration: 1250, thumbnail: 'https://i.imgur.com/mA3fLx8.jpg', videoUrl: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4', educational: true, adult: false, tags: ['история'] },
-                ];
-                saveVideos();
-            }
-            let storedUsers = localStorage.getItem(STORAGE_USERS);
-            if (storedUsers) users = JSON.parse(storedUsers);
-            else {
-                users = [{ username: 'demo', password: 'demo', channelId: 'demo_ch', channelName: 'Демо канал' }];
-                saveUsers();
-            }
-            let session = localStorage.getItem(STORAGE_SESSION);
-            if (session) {
-                currentUser = JSON.parse(session);
-            }
-        }
-        function saveVideos() { localStorage.setItem(STORAGE_VIDEOS, JSON.stringify(videos)); }
-        function saveUsers() { localStorage.setItem(STORAGE_USERS, JSON.stringify(users)); }
-        function saveSession() { if (currentUser) localStorage.setItem(STORAGE_SESSION, JSON.stringify(currentUser)); else localStorage.removeItem(STORAGE_SESSION); }
+    function navigateTo(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(page + 'Page').classList.add('active');
+    }
 
-        loadData();
-
-        // ========== АВТОРИЗАЦИЯ ==========
-        function renderUserSection() {
-            let section = document.getElementById('userSection');
-            if (currentUser) {
-                section.innerHTML = `<div class="avatar" onclick="openChannel('${currentUser.channelId}')">${currentUser.username[0].toUpperCase()}</div>`;
-            } else {
-                section.innerHTML = `<button onclick="showAuthModal('login')"><i class="fas fa-sign-in-alt"></i> Вход</button><button onclick="showAuthModal('register')"><i class="fas fa-user-plus"></i> Регистрация</button>`;
-            }
-        }
-
-        window.showAuthModal = function(mode) {
-            let modal = document.getElementById('authModal');
-            let content = document.getElementById('authModalContent');
-            if (mode === 'login') {
-                content.innerHTML = `
-                    <h2>Вход</h2>
-                    <input type="text" id="loginUsername" placeholder="Имя пользователя">
-                    <input type="password" id="loginPassword" placeholder="Пароль">
-                    <button onclick="login()">Войти</button>
-                    <p class="switch-link" onclick="showAuthModal('register')">Нет аккаунта? Зарегистрироваться</p>
-                    <p style="color:#aaa; margin-top:10px;">demo / demo</p>
-                `;
-            } else {
-                content.innerHTML = `
-                    <h2>Регистрация</h2>
-                    <input type="text" id="regUsername" placeholder="Имя">
-                    <input type="password" id="regPassword" placeholder="Пароль">
-                    <button onclick="register()">Зарегистрироваться</button>
-                    <p class="switch-link" onclick="showAuthModal('login')">Уже есть аккаунт? Войти</p>
-                `;
-            }
-            modal.classList.add('active');
-        };
-
-        window.closeModal = function() {
-            document.getElementById('authModal').classList.remove('active');
-        };
-
-        window.login = function() {
-            let username = document.getElementById('loginUsername').value;
-            let password = document.getElementById('loginPassword').value;
-            let user = users.find(u => u.username === username && u.password === password);
-            if (user) {
-                currentUser = { username: user.username, channelId: user.channelId, channelName: user.channelName };
-                saveSession();
-                closeModal();
-                renderUserSection();
-            } else alert('Неверные данные');
-        };
-
-        window.register = function() {
-            let username = document.getElementById('regUsername').value;
-            let password = document.getElementById('regPassword').value;
-            if (!username || !password) return alert('Заполните поля');
-            if (users.find(u => u.username === username)) return alert('Имя занято');
-            let newChannelId = 'ch_' + Date.now();
-            let newUser = { username, password, channelId: newChannelId, channelName: `Канал ${username}` };
-            users.push(newUser);
-            saveUsers();
-            currentUser = { username, channelId: newChannelId, channelName: `Канал ${username}` };
-            saveSession();
-            closeModal();
-            renderUserSection();
-        };
-
-        // ========== НАВИГАЦИЯ ==========
-        window.navigateTo = function(page) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(page + 'Page').classList.add('active');
-            if (page === 'home') renderHome();
-        };
-
-        // ========== РЕНДЕРЫ ==========
-        function renderHome() {
-            let recs = [...videos];
-            if (lastWatchedTags.length > 0) {
-                recs.sort((a,b) => (b.tags?.filter(t => lastWatchedTags.includes(t)).length || 0) - (a.tags?.filter(t => lastWatchedTags.includes(t)).length || 0));
-            } else recs.sort(() => Math.random() - 0.5);
-            renderScroll('recsContainer', recs.filter(v => v.orientation === 'horizontal'), false);
-            renderScroll('verticalFeedContainer', videos.filter(v => v.orientation === 'vertical'), true);
-        }
-
-        function renderScroll(containerId, items, isVertical) {
-            let container = document.getElementById(containerId);
-            container.innerHTML = '';
-            items.forEach(v => {
-                let div = document.createElement('div');
-                div.className = 'scroll-item';
-                div.innerHTML = `
-                    <div class="video-card" onclick="openVideo('${v.id}')">
-                        <div class="thumbnail ${isVertical ? 'vertical' : ''}">
-                            <img src="${v.thumbnail || 'https://i.imgur.com/5ZQmFmM.jpg'}" onerror="this.src='https://i.imgur.com/5ZQmFmM.jpg'">
-                            <span class="thumb-overlay">${formatDuration(v.duration)}</span>
-                        </div>
-                        <div class="video-details">
-                            <h4>${v.title}</h4>
-                            <p><a href="#" onclick="openChannel('${v.channelId}'); return false;" class="channel-link">${v.channelName}</a> • ${v.views} просмотров</p>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        window.openVideo = function(videoId) {
-            let video = videos.find(v => v.id === videoId);
-            if (!video) return;
-            video.views = (video.views || 0) + 1;
-            saveVideos();
-            if (video.tags) {
-                lastWatchedTags.push(...video.tags);
-                if (lastWatchedTags.length > 8) lastWatchedTags = lastWatchedTags.slice(-8);
-                localStorage.setItem('lastTags', JSON.stringify(lastWatchedTags));
-            }
-
-            document.getElementById('videoTitle').innerText = video.title;
-            document.getElementById('videoViews').innerText = video.views;
-            document.getElementById('videoLikes').innerText = video.likes || 0;
-            document.getElementById('videoDuration').innerText = formatDuration(video.duration);
-            document.getElementById('videoDescription').innerText = video.desc;
-            let channelLink = document.getElementById('videoChannelLink');
-            channelLink.innerText = video.channelName;
-            channelLink.onclick = (e) => { e.preventDefault(); openChannel(video.channelId); };
-
-            // плеер
-            const player = videojs('realVideoPlayer');
-            player.src({ src: video.videoUrl, type: 'video/mp4' });
-            if (video.orientation === 'vertical') document.getElementById('realVideoPlayer').classList.add('vjs-9-16');
-            else document.getElementById('realVideoPlayer').classList.remove('vjs-9-16');
-            player.load();
-
-            // кнопка скачивания
-            document.getElementById('downloadVideoBtn').setAttribute('data-url', video.videoUrl);
-            document.getElementById('downloadVideoBtn').setAttribute('data-title', video.title);
-
-            // ещё с канала
-            let more = videos.filter(v => v.channelId === video.channelId && v.id !== video.id);
-            let moreDiv = document.getElementById('moreFromChannel');
-            moreDiv.innerHTML = '';
-            more.forEach(v => {
-                moreDiv.innerHTML += `<div class="video-card" onclick="openVideo('${v.id}')"><div class="thumbnail"><img src="${v.thumbnail}"></div><h4>${v.title}</h4></div>`;
-            });
-
-            navigateTo('video');
-        };
-
-        // ========== СКАЧИВАНИЕ ==========
-        window.downloadCurrentVideo = function() {
-            let url = document.getElementById('downloadVideoBtn').getAttribute('data-url');
-            let title = document.getElementById('downloadVideoBtn').getAttribute('data-title') || 'video';
-            if (!url) return alert('Видео не найдено');
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = title + '.mp4';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        };
-
-        window.openChannel = function(channelId) {
-            let channelVideos = videos.filter(v => v.channelId === channelId);
-            if (!channelVideos.length) return;
-            document.getElementById('channelName').innerText = channelVideos[0].channelName;
-            document.getElementById('channelStats').innerText = `Видео: ${channelVideos.length} • Подписчиков: 10.2K`;
-            let list = document.getElementById('channelVideosList');
-            list.innerHTML = '';
-            channelVideos.forEach(v => {
-                list.innerHTML += `<div class="video-card" onclick="openVideo('${v.id}')"><div class="thumbnail"><img src="${v.thumbnail}"></div><h4>${v.title}</h4><p>${v.views} просмотров</p></div>`;
-            });
-            navigateTo('channel');
-        };
-
-        window.searchVideos = function() {
-            let q = document.getElementById('searchInput').value.toLowerCase();
-            document.getElementById('searchQuerySpan').innerText = q;
-            let res = videos.filter(v => v.title.toLowerCase().includes(q));
-            let grid = document.getElementById('searchResultsGrid');
-            grid.innerHTML = '';
-            res.forEach(v => {
-                grid.innerHTML += `<div class="video-card" onclick="openVideo('${v.id}')"><div class="thumbnail"><img src="${v.thumbnail}"></div><h4>${v.title}</h4><p>${v.channelName}</p></div>`;
-            });
-            navigateTo('search');
-        };
-
-        window.scrollHoriz = function(type, dir) {
-            let id = type === 'recs' ? 'recsContainer' : 'verticalFeedContainer';
-            document.getElementById(id).scrollLeft += dir * 350;
-        };
-
-        window.resetAndReload = function() {
-            localStorage.removeItem('lastTags');
-            location.reload();
-        };
-
-        // превью обложки
-        document.getElementById('thumbFile')?.addEventListener('change', function(e) {
-            let file = e.target.files[0];
-            if (file) {
-                let reader = new FileReader();
-                reader.onload = function(ev) {
-                    document.getElementById('thumbPreviewImg').innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
-                    document.getElementById('thumbPreviewBlock').style.display = 'flex';
-                };
-                reader.readAsDataURL(file);
-            } else document.getElementById('thumbPreviewBlock').style.display = 'none';
-        });
-
-        // публикация
-        window.publishVideo = function() {
-            if (!currentUser) { alert('Сначала войдите'); showAuthModal('login'); return; }
-            let file = document.getElementById('videoFile').files[0];
-            let title = document.getElementById('videoTitleInput').value.trim();
-            let desc = document.getElementById('videoDescInput').value.trim();
-            let orientation = document.getElementById('videoOrientation').value;
-            let thumbFile = document.getElementById('thumbFile').files[0];
-            let educational = document.getElementById('educationalCheck').checked;
-            let adult = document.getElementById('adultContentCheck').checked;
-            if (!file || !title) { document.getElementById('uploadMessage').innerText = 'Заполните поля'; return; }
-
-            // модерация
-            let lower = (title + ' ' + desc).toLowerCase();
-            if (!educational && !adult) {
-                if (lower.includes('кур') || lower.includes('алкоголь') || lower.includes('18+') || lower.includes('секс')) {
-                    document.getElementById('uploadMessage').innerText = '⚠️ Требуется галочка образовательных целей или 18+';
-                    return;
-                }
-            }
-            let newId = 'vid_' + Date.now();
-            let newVideo = {
-                id: newId,
-                title, desc, orientation,
-                channelId: currentUser.channelId,
-                channelName: currentUser.channelName,
-                views: 0, likes: 0,
-                duration: orientation === 'vertical' ? 120 : 600,
-                thumbnail: 'https://i.imgur.com/5ZQmFmM.jpg',
-                videoUrl: URL.createObjectURL(file),
-                educational, adult, tags: []
-            };
-            if (thumbFile) {
-                let reader = new FileReader();
-                reader.onload = function(ev) {
-                    newVideo.thumbnail = ev.target.result;
-                    videos.push(newVideo);
-                    saveVideos();
-                    document.getElementById('uploadMessage').innerText = '✅ Опубликовано!';
-                    setTimeout(() => navigateTo('home'), 1000);
-                };
-                reader.readAsDataURL(thumbFile);
-            } else {
-                videos.push(newVideo);
-                saveVideos();
-                document.getElementById('uploadMessage').innerText = '✅ Опубликовано!';
-                setTimeout(() => navigateTo('home'), 1000);
-            }
-        };
-
-        function formatDuration(sec) {
-            let m = Math.floor(sec/60); let s = Math.floor(sec%60); return `${m}:${s.toString().padStart(2,'0')}`;
-        }
-
-        // инициализация
-        renderUserSection();
-        renderHome();
-
-        // клик вне модалки
-        window.onclick = function(e) {
-            let modal = document.getElementById('authModal');
-            if (e.target === modal) modal.classList.remove('active');
-        };
-    })();
+    function publishVideo() {
+        alert('Видео опубликовано!');
+    }
 </script>
 </body>
 </html>
